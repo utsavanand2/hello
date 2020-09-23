@@ -1,9 +1,10 @@
-name: CI-CD
+name: CI/CD
 
 on:
   push:
     branches: 
       - master
+      - readable-workflow
 
 jobs:
   func-build:
@@ -14,16 +15,16 @@ jobs:
         uses: actions/checkout@v2
       -
         name: Pull template
-        run: |
-          docker run --rm -v `pwd`:`pwd` -w `pwd` \
-          openfaas/faas-cli:latest-root \
-          template store pull golang-http
+        uses: docker://openfaas/faas-cli:latest-root
+        with:
+          entrypoint: faas-cli
+          args: template store pull golang-http
       - 
         name: Running faas-cli skrinkwrap build
-        run: |
-          docker run --rm -v `pwd`:`pwd` -w `pwd` \
-          openfaas/faas-cli:latest-root \
-          build -f faasd-hello.yml --shrinkwrap
+        uses: docker://openfaas/faas-cli:latest-root
+        with:
+          entrypoint: faas-cli
+          args: build -f faasd-hello.yml --shrinkwrap
       -
         name: Login to DockerHub
         if: success()
@@ -33,30 +34,25 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - 
         name: Login to OpenFaaS Gateway
-        run: |
-          docker run --rm -v $HOME:/root -w $HOME \
-          openfaas/faas-cli:latest-root \
-          login \
-          -p ${{ secrets.OPENFAAS_GATEWAY_PASSWD }} \
-          -g ${{ secrets.OPENFAAS_GATEWAY }} \
-          && \
-          sudo chown $USER:$USER -R $HOME/.openfaas && \
-          ls -lah $HOME
+        uses: docker://openfaas/faas-cli:latest-root
+        with:
+          entrypoint: faas-cli
+          args: |
+            login -p ${{ secrets.OPENFAAS_GATEWAY_PASSWD }} -g ${{ secrets.OPENFAAS_GATEWAY }}
       - 
-        name: Build and Push OpenFaaS function
+        name: Update permissions to build and .openfaas directories
         run: |
-          # Update rights of build dir from root to current user \
-          # Build and push multi-arch image \
-          sudo chown $USER:$USER -R build/ && \
-          docker build \
-          --tag utsavanand2/faasd-hello:latest \
+          sudo chown $USER:$USER -R build/ $HOME/.openfaas
+      - 
+        name: Build and Push the OpenFaaS function
+        run: |
+          docker build --tag utssavanand2/faasd-hello:latest \
           build/faasd-hello/ && \
-          docker push utsavanand2/faasd-hello:latest
-      - 
-        name: Deploying OpenFaaS function to your faasd appliance
-        run: |
-          docker run --rm -w `pwd` \
-          -v `pwd`:`pwd` \
-          -v $HOME:/root \
-          openfaas/faas-cli:latest-root \
-          deploy -f faasd-hello.yml
+          docker push utssavanand2/faasd-hello:latest
+      -
+        name: Deploying the OpenFaaS function to your faasd appliance
+        uses: docker://openfaas/faas-cli:latest-root
+        with:
+          entrypoint: faas-cli
+          args: |
+            deploy -f faasd-hello.yml
