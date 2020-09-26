@@ -10,13 +10,57 @@ on:
 jobs:
   func-build:
     runs-on: ubuntu-latest
-    container:
-      image: openfaas/faas-cli:latest-root
-      options: -v /github/home:/root:rw -v /__w/faasd-hello/faasd-hello:/home/app:rw
     steps:
       - 
         name: Checkout
         uses: actions/checkout@v2
       -
         name: Pull template
-        run: faas-cli template store pull golang-http
+        uses: utsavanand2/openfaas-action@v0.0.1
+        with:
+          cli-args: faas-cli template store pull golang-http
+      - 
+        name: Run shrinkwrap build
+        uses: utsavanand2/openfaas-action@v0.0.1
+        with:
+          cli-args: faas-cli build -f faasd-hello.yml --shrinkwrap
+      -
+        name: Login to OpenFaaS Gateway
+        uses: utsavanand2/openfaas-action@v0.0.1
+        with:
+          cli-args: faas-cli login -p ${{ secrets.OPENFAAS_GATEWAY_PASSWD }} -g ${{ secrets.OPENFAAS_GATEWAY }}
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to DockerHub
+        if: success()
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      -
+        name: List dir contents
+        run: |
+          ls -lah
+      - 
+        name: Change dir permissions
+        run: |
+          sudo chown $USER:$USER -R $HOME/.openfaas &&
+          sudo chown $USER:$USER -R build/
+      - 
+        name: Build and Push the OpenFaaS function
+        uses: docker/build-push-action@v2
+        with:
+          context: ./build/faasd-hello/
+          file: ./build/faasd-hello/Dockerfile
+          push: true
+          tags: utsavanand2/faasd-hello:latest
+      - 
+        name: Deploy the function
+        uses: utsavanand2/openfaas-action@v0.0.1
+        with:
+          cli-args: faas-cli deploy -f faasd-hello.yml
