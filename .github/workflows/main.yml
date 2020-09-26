@@ -20,7 +20,9 @@ jobs:
       -
         name: Pull template
         with:
-          args: template store pull golang-http
+          entrypoint: faas-cli
+        run: |
+        template store pull golang-http
       # - 
       #   name: Running faas-cli skrinkwrap build
       #   uses: docker://openfaas/faas-cli:latest-root
