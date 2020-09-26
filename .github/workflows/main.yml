@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v2
       -
         name: Pull template
+        uses: docker
         with:
           entrypoint: faas-cli
         run: template store pull golang-http
