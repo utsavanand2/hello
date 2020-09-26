@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: openfaas/faas-cli:latest-root
-      options: -v /github/home:/root:rw -v `pwd`:`pwd`:rw
+      options: -v /github/home:/root:rw -v /__w/faasd-hello/faasd-hello:/home/app:rw
     steps:
       - 
         name: Checkout
