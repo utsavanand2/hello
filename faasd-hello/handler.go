@@ -14,7 +14,7 @@ func Handle(req handler.Request) (handler.Response, error) {
 
 	log.Printf("received request: %s\n", string(req.Body))
 
-	message := fmt.Sprintf("Hello world from shrinked workflow, input was: %s", string(req.Body))
+	message := fmt.Sprintf("Thank you so much Lucas!\nLooks like the build was successful 💪🎉")
 	return handler.Response{
 		Body:       []byte(message),
 		StatusCode: http.StatusOK,
