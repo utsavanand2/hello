@@ -58,3 +58,4 @@ jobs:
         uses: docker://utsavanand2/faas-cli:latest-root
         with:
           args: deploy -f faasd-hello.yml
+          
