@@ -4,6 +4,7 @@ on:
   push:
     branches: 
       - master
+      - multi-arch
 jobs:
   func-build:
     runs-on: ubuntu-latest
@@ -34,6 +35,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - 
@@ -43,10 +47,6 @@ jobs:
           context: ./build/hello/
           file: ./build/hello/Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           tags: utsavanand2/hello:latest
-      - 
-        name: Deploy the function
-        uses: docker://utsavanand2/faas-cli:latest-root
-        with:
-          args: deploy -f hello.yml
           
