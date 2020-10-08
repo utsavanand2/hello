@@ -1,0 +1,10 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://34.72.40.64:8080
+functions:
+  hello:
+    lang: golang-http
+    handler: ./hello
+    image: utsavanand2/hello:latest
+

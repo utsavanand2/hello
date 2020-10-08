@@ -21,7 +21,7 @@ jobs:
         name: Run shrinkwrap build
         uses: docker://utsavanand2/faas-cli:latest-root
         with:
-          args: build -f faasd-hello.yml --shrinkwrap
+          args: build -f hello.yml --shrinkwrap
       -
         name: Login to OpenFaaS Gateway
         uses: docker://utsavanand2/faas-cli:latest-root
@@ -48,14 +48,14 @@ jobs:
         name: Build and Push the OpenFaaS function
         uses: docker/build-push-action@v2
         with:
-          context: ./build/faasd-hello/
-          file: ./build/faasd-hello/Dockerfile
+          context: ./build/hello/
+          file: ./build/hello/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          tags: utsavanand2/faasd-hello:latest
+          tags: utsavanand2/hello:latest
       - 
         name: Deploy the function
         uses: docker://utsavanand2/faas-cli:latest-root
         with:
-          args: deploy -f faasd-hello.yml
+          args: deploy -f hello.yml
           
