@@ -13,17 +13,17 @@ jobs:
         uses: actions/checkout@v2
       -
         name: Pull template
-        uses: docker://utsavanand2/faas-cli:latest-root
+        uses: docker://openfaas/faas-cli:latest-root
         with:
           args: template store pull golang-http
       - 
         name: Run shrinkwrap build
-        uses: docker://utsavanand2/faas-cli:latest-root
+        uses: docker://openfaas/faas-cli:latest-root
         with:
           args: build -f hello.yml --shrinkwrap
       -
         name: Login to OpenFaaS Gateway
-        uses: docker://utsavanand2/faas-cli:latest-root
+        uses: docker://openfaas/faas-cli:latest-root
         with:
           args: login -p ${{ secrets.OPENFAAS_GATEWAY_PASSWD }} -g ${{ secrets.OPENFAAS_GATEWAY }}
       -
@@ -46,7 +46,7 @@ jobs:
           tags: utsavanand2/hello:latest
       - 
         name: Deploy the function
-        uses: docker://utsavanand2/faas-cli:latest-root
+        uses: docker://openfaas/faas-cli:latest-root
         with:
           args: deploy -f hello.yml
           
