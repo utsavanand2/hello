@@ -12,6 +12,10 @@ jobs:
         name: Checkout
         uses: actions/checkout@v2
       -
+        name: Define ENV VARS
+        id: define_env
+        run:  echo "::set-output name=github-sha-short::$(echo $GITHUB_SHA | cut -c 1-7)"
+      -
         name: Pull template
         uses: docker://openfaas/faas-cli:latest-root
         with:
@@ -25,7 +29,8 @@ jobs:
         name: Login to OpenFaaS Gateway
         uses: docker://openfaas/faas-cli:latest-root
         with:
-          args: login -p ${{ secrets.OPENFAAS_GATEWAY_PASSWD }} -g ${{ secrets.OPENFAAS_GATEWAY }}
+          args: login -p ${{ secrets.OPENFAAS_GATEWAY_PASSWD }} \
+                      -g ${{ secrets.OPENFAAS_GATEWAY }}
       -
         name: Login to DockerHub
         if: success()
@@ -43,10 +48,10 @@ jobs:
           context: ./build/hello/
           file: ./build/hello/Dockerfile
           push: true
-          tags: utsavanand2/hello:latest
+          tags: utsavanand2/hello:latest-${{ steps.define_env.outputs.github-sha-short }}
       - 
         name: Deploy the function
         uses: docker://openfaas/faas-cli:latest-root
         with:
-          args: deploy -f hello.yml
+          args: deploy -f hello.yml --tag sha
           
