@@ -2,4 +2,4 @@
 
 ## CI-CD for OpenFaaS functions using Github Actions
 
-> You can follow along with the steps in this [blog post]() to make the most of this repo.
+> You can follow along with the steps in this [blog post](https://www.openfaas.com/blog/openfaas-functions-with-github-actions/) to make the most of this repo.
